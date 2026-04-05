@@ -7,6 +7,8 @@ A macOS Menu Bar application that displays real-time glucose data from the Libre
 - **Menu Bar Integration** — Current glucose value and trend arrow always visible in your menu bar
 - **Floating HUD** — Always-on-top transparent panel with large glucose display and trend graph (works over full-screen apps)
 - **Trend Graph** — Visual history of glucose readings with high/low threshold zones
+- **Resizable HUD** — Drag edges to resize, size is remembered between launches
+- **Adjustable Transparency** — HUD opacity from 1% to 100%, updates in real time
 - **Configurable** — Polling interval (1-5 min), mg/dL or mmol/L, custom thresholds
 - **Secure** — Password stored in macOS Keychain, not in plain text
 - **Multi-Region** — Supports all LibreLinkUp regions (auto-detected via server redirect)

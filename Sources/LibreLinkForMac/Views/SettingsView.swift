@@ -73,6 +73,23 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("HUD Appearance") {
+                    HStack {
+                        Text("Transparency")
+                        Slider(value: $settings.hudOpacity, in: 1...100, step: 1)
+                            .onChange(of: settings.hudOpacity) { opacity in
+                                HUDPanelController.shared.updateOpacity(opacity)
+                            }
+                        Text("\(Int(settings.hudOpacity))%")
+                            .frame(width: 40, alignment: .trailing)
+                            .monospacedDigit()
+                    }
+
+                    Text("Drag the HUD edges to resize it. Size is remembered.")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+
                 Section("Thresholds (mg/dL)") {
                     HStack {
                         Text("Low")
@@ -117,7 +134,7 @@ struct SettingsView: View {
             }
             .padding()
         }
-        .frame(width: 420, height: 480)
+        .frame(width: 420, height: 560)
         .onAppear {
             password = settings.password
         }
@@ -145,7 +162,7 @@ final class SettingsWindowController {
         let hostingView = NSHostingView(rootView: settingsView)
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 420, height: 480),
+            contentRect: NSRect(x: 0, y: 0, width: 420, height: 560),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false

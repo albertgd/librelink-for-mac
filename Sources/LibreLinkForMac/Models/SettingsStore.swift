@@ -12,6 +12,9 @@ final class SettingsStore: ObservableObject {
     @AppStorage("use_mmol") var useMmol: Bool = false
     @AppStorage("low_threshold") var lowThreshold: Double = 70
     @AppStorage("high_threshold") var highThreshold: Double = 180
+    @AppStorage("hud_opacity") var hudOpacity: Double = 85
+    @AppStorage("hud_width") var hudWidth: Double = 280
+    @AppStorage("hud_height") var hudHeight: Double = 220
 
     // Password stored in Keychain for security
     var password: String {
