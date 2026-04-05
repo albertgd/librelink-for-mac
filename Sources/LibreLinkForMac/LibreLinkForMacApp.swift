@@ -26,9 +26,14 @@ struct LibreLinkForMacApp: App {
     }
 
     init() {
-        // Start polling if credentials exist
         if SettingsStore.shared.hasCredentials {
             LibreLinkClient.shared.startPolling()
+        } else {
+            // First launch — open Settings so the user can enter credentials
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                NSApp.activate(ignoringOtherApps: true)
+                SettingsWindowController.shared.showWindow()
+            }
         }
     }
 }

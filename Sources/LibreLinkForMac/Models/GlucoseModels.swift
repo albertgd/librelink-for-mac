@@ -1,4 +1,5 @@
 import Foundation
+import CommonCrypto
 
 // MARK: - API Response Models
 
@@ -9,10 +10,22 @@ struct LoginResponse: Codable {
     struct LoginData: Codable {
         let authTicket: AuthTicket?
         let user: User?
+        let redirect: Bool?
+        let region: String?
+        let step: Step?
     }
 
     struct User: Codable {
         let id: String?
+        let firstName: String?
+        let lastName: String?
+        let accountType: String?
+        let country: String?
+    }
+
+    struct Step: Codable {
+        let type: String?
+        let componentName: String?
     }
 }
 
@@ -32,6 +45,7 @@ struct Connection: Codable, Identifiable {
     let patientId: String
     let firstName: String?
     let lastName: String?
+    let glucoseMeasurement: GlucoseEntry?
 
     var displayName: String {
         [firstName, lastName].compactMap { $0 }.joined(separator: " ")
@@ -50,28 +64,49 @@ struct GlucoseResponse: Codable {
 
 struct ConnectionGlucose: Codable {
     let glucoseMeasurement: GlucoseEntry?
+    let sensor: Sensor?
+}
+
+struct Sensor: Codable {
+    let deviceId: String?
+    let sn: String?
+    let a: Int?
 }
 
 struct GlucoseEntry: Codable, Identifiable {
     let FactoryTimestamp: String?
     let Timestamp: String?
     let ValueInMgPerDl: Double?
+    let Value: Double?
     let TrendArrow: Int?
     let MeasurementColor: Int?
+    let GlucoseUnits: Int?
+    let isHigh: Bool?
+    let isLow: Bool?
 
     var id: String { Timestamp ?? FactoryTimestamp ?? UUID().uuidString }
 
     var value: Double { ValueInMgPerDl ?? 0 }
 
+    /// Parse timestamp - try FactoryTimestamp as UTC first, then Timestamp as local
     var timestamp: Date? {
         let formatter = DateFormatter()
         formatter.dateFormat = "M/d/yyyy h:mm:ss a"
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        if let ts = Timestamp, let date = formatter.date(from: ts) {
-            return date
+
+        // FactoryTimestamp is UTC
+        if let ts = FactoryTimestamp {
+            formatter.timeZone = TimeZone(identifier: "UTC")
+            if let date = formatter.date(from: ts) {
+                return date
+            }
         }
-        if let ts = FactoryTimestamp, let date = formatter.date(from: ts) {
-            return date
+        // Timestamp is local time
+        if let ts = Timestamp {
+            formatter.timeZone = .current
+            if let date = formatter.date(from: ts) {
+                return date
+            }
         }
         return nil
     }
@@ -81,26 +116,22 @@ struct GlucoseEntry: Codable, Identifiable {
     }
 }
 
-// MARK: - Trend Arrow
+// MARK: - Trend Arrow (matching GlucoDataHandler: 1=falling fast, 2=falling, 3=stable, 4=rising, 5=rising fast)
 
 enum TrendArrow: Int, CaseIterable {
     case unknown = 0
     case fallingQuickly = 1
     case falling = 2
-    case fallingSlowly = 3
-    case stable = 4
-    case risingSlowly = 5
-    case rising = 6
-    case risingQuickly = 7
+    case stable = 3
+    case rising = 4
+    case risingQuickly = 5
 
     var sfSymbol: String {
         switch self {
         case .unknown: return "questionmark"
         case .fallingQuickly: return "arrow.down"
         case .falling: return "arrow.down.right"
-        case .fallingSlowly: return "arrow.down.forward"
         case .stable: return "arrow.right"
-        case .risingSlowly: return "arrow.up.forward"
         case .rising: return "arrow.up.right"
         case .risingQuickly: return "arrow.up"
         }
@@ -111,53 +142,33 @@ enum TrendArrow: Int, CaseIterable {
         case .unknown: return "Unknown"
         case .fallingQuickly: return "Falling Quickly"
         case .falling: return "Falling"
-        case .fallingSlowly: return "Falling Slowly"
         case .stable: return "Stable"
-        case .risingSlowly: return "Rising Slowly"
         case .rising: return "Rising"
         case .risingQuickly: return "Rising Quickly"
         }
     }
-}
 
-// MARK: - Region Configuration
-
-enum LibreLinkRegion: String, CaseIterable, Identifiable {
-    case us = "us"
-    case eu = "eu"
-    case de = "de"
-    case fr = "fr"
-    case jp = "jp"
-    case ap = "ap"
-    case au = "au"
-    case ae = "ae"
-
-    var id: String { rawValue }
-
-    var displayName: String {
+    /// Rate of change in mg/dL per minute
+    var rate: Double {
         switch self {
-        case .us: return "United States"
-        case .eu: return "Europe"
-        case .de: return "Germany"
-        case .fr: return "France"
-        case .jp: return "Japan"
-        case .ap: return "Asia Pacific"
-        case .au: return "Australia"
-        case .ae: return "UAE"
+        case .unknown: return 0.0
+        case .fallingQuickly: return -2.0
+        case .falling: return -1.0
+        case .stable: return 0.0
+        case .rising: return 1.0
+        case .risingQuickly: return 2.0
         }
     }
+}
 
-    var baseURL: String {
-        switch self {
-        case .us: return "https://api-us.libreview.io"
-        case .eu: return "https://api-eu.libreview.io"
-        case .de: return "https://api-de.libreview.io"
-        case .fr: return "https://api-fr.libreview.io"
-        case .jp: return "https://api-jp.libreview.io"
-        case .ap: return "https://api-ap.libreview.io"
-        case .au: return "https://api-au.libreview.io"
-        case .ae: return "https://api-ae.libreview.io"
-        }
+// MARK: - Version Error Response
+
+struct VersionErrorResponse: Codable {
+    let status: Int?
+    let data: VersionData?
+
+    struct VersionData: Codable {
+        let minimumVersion: String?
     }
 }
 
@@ -172,5 +183,18 @@ enum GlucoseRange {
         if value < 70 { return .low }
         if value > 180 { return .high }
         return .normal
+    }
+}
+
+// MARK: - SHA-256 Helper
+
+enum SHA256 {
+    static func hash(_ string: String) -> String {
+        let data = Data(string.utf8)
+        var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+        data.withUnsafeBytes {
+            _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &digest)
+        }
+        return digest.map { String(format: "%02x", $0) }.joined()
     }
 }

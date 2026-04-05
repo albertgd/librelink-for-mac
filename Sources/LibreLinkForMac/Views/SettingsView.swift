@@ -41,11 +41,20 @@ struct SettingsView: View {
                         .buttonStyle(.plain)
                     }
 
-                    Picker("Region", selection: $settings.regionRaw) {
-                        ForEach(LibreLinkRegion.allCases) { region in
-                            Text(region.displayName).tag(region.rawValue)
-                        }
+                    Picker("Region", selection: $settings.region) {
+                        Text("Europe").tag("eu")
+                        Text("United States").tag("us")
+                        Text("Germany").tag("de")
+                        Text("France").tag("fr")
+                        Text("Japan").tag("jp")
+                        Text("Asia Pacific").tag("ap")
+                        Text("Australia").tag("au")
+                        Text("UAE").tag("ae")
                     }
+
+                    Text("Region auto-corrects if the server redirects you.")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
                 }
 
                 Section("Display") {
@@ -122,8 +131,13 @@ final class SettingsWindowController {
     private var window: NSWindow?
 
     func showWindow() {
+        // LSUIElement apps need explicit activation to accept keyboard input
+        NSApp.setActivationPolicy(.accessory)
+        NSApp.activate(ignoringOtherApps: true)
+
         if let window = window {
             window.makeKeyAndOrderFront(nil)
+            window.makeFirstResponder(window.contentView)
             return
         }
 
@@ -141,6 +155,7 @@ final class SettingsWindowController {
         window.center()
         window.isReleasedWhenClosed = false
         window.makeKeyAndOrderFront(nil)
+        window.makeFirstResponder(hostingView)
 
         self.window = window
     }

@@ -6,17 +6,12 @@ final class SettingsStore: ObservableObject {
     static let shared = SettingsStore()
 
     @AppStorage("libre_email") var email: String = ""
-    @AppStorage("libre_region") var regionRaw: String = LibreLinkRegion.eu.rawValue
+    @AppStorage("libre_region") var region: String = "eu"
     @AppStorage("polling_interval") var pollingInterval: Double = 60
     @AppStorage("hud_visible") var hudVisible: Bool = false
     @AppStorage("use_mmol") var useMmol: Bool = false
     @AppStorage("low_threshold") var lowThreshold: Double = 70
     @AppStorage("high_threshold") var highThreshold: Double = 180
-
-    var region: LibreLinkRegion {
-        get { LibreLinkRegion(rawValue: regionRaw) ?? .eu }
-        set { regionRaw = newValue.rawValue }
-    }
 
     // Password stored in Keychain for security
     var password: String {
