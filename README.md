@@ -1,6 +1,13 @@
-# LibreLink HUD for Mac
+<p align="center">
+  <img src="logo.jpg" width="180" alt="LibreLink HUD for Mac">
+</p>
 
-A macOS Menu Bar application that displays real-time glucose data from the LibreLinkUp API. Features an always-on-top floating HUD with a trend graph.
+<h1 align="center">LibreLink HUD for Mac</h1>
+
+<p align="center">
+  A macOS Menu Bar application that displays real-time glucose data from the LibreLinkUp API.<br>
+  Features an always-on-top floating HUD with a trend graph.
+</p>
 
 ## Features
 
