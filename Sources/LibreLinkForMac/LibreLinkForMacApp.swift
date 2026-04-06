@@ -28,12 +28,14 @@ struct LibreLinkForMacApp: App {
     }
 
     init() {
-        // Panel always starts hidden regardless of last saved state
-        SettingsStore.shared.hudVisible = false
-
         if SettingsStore.shared.hasCredentials {
+            SettingsStore.shared.hudVisible = true
             LibreLinkClient.shared.startPolling()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                HUDPanelController.shared.show()
+            }
         } else {
+            SettingsStore.shared.hudVisible = false
             // First launch — open Settings so the user can enter credentials
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 NSApp.activate(ignoringOtherApps: true)

@@ -19,98 +19,114 @@ struct SettingsView: View {
 
             Divider()
 
-            Form {
-                Section("LibreLinkUp Credentials") {
-                    TextField("Email", text: $settings.email)
-                        .textFieldStyle(.roundedBorder)
-                        .multilineTextAlignment(.leading)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
 
-                    HStack {
-                        if showPassword {
-                            TextField("Password", text: $password)
-                                .textFieldStyle(.roundedBorder)
-                                .multilineTextAlignment(.leading)
-                        } else {
-                            SecureField("Password", text: $password)
+                    // MARK: Credentials
+                    SettingsSection("LibreLinkUp Credentials") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            SettingsLabel("Email")
+                            TextField("Email", text: $settings.email)
                                 .textFieldStyle(.roundedBorder)
                         }
-                        Button {
-                            showPassword.toggle()
-                        } label: {
-                            Image(systemName: showPassword ? "eye.slash" : "eye")
-                                .foregroundColor(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
 
-                    Picker("Region", selection: $settings.region) {
-                        Text("Europe").tag("eu")
-                        Text("United States").tag("us")
-                        Text("Germany").tag("de")
-                        Text("France").tag("fr")
-                        Text("Japan").tag("jp")
-                        Text("Asia Pacific").tag("ap")
-                        Text("Australia").tag("au")
-                        Text("UAE").tag("ae")
-                    }
-
-                    Text("Region auto-corrects if the server redirects you.")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                }
-
-                Section("Display") {
-                    Toggle("Use mmol/L", isOn: $settings.useMmol)
-
-                    HStack {
-                        Text("Polling Interval")
-                        Spacer()
-                        Picker("", selection: $settings.pollingInterval) {
-                            Text("1 min").tag(60.0)
-                            Text("2 min").tag(120.0)
-                            Text("3 min").tag(180.0)
-                            Text("5 min").tag(300.0)
-                        }
-                        .frame(width: 120)
-                    }
-                }
-
-                Section("HUD Appearance") {
-                    HStack {
-                        Text("Transparency")
-                        Slider(value: $settings.hudOpacity, in: 1...100, step: 1)
-                            .onChange(of: settings.hudOpacity) { opacity in
-                                HUDPanelController.shared.updateOpacity(opacity)
+                        VStack(alignment: .leading, spacing: 8) {
+                            SettingsLabel("Password")
+                            HStack {
+                                if showPassword {
+                                    TextField("Password", text: $password)
+                                        .textFieldStyle(.roundedBorder)
+                                } else {
+                                    SecureField("Password", text: $password)
+                                        .textFieldStyle(.roundedBorder)
+                                }
+                                Button {
+                                    showPassword.toggle()
+                                } label: {
+                                    Image(systemName: showPassword ? "eye.slash" : "eye")
+                                        .foregroundColor(.secondary)
+                                }
+                                .buttonStyle(.plain)
                             }
-                        Text("\(Int(settings.hudOpacity))%")
-                            .frame(width: 40, alignment: .trailing)
-                            .monospacedDigit()
+                        }
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            SettingsLabel("Region")
+                            Picker("", selection: $settings.region) {
+                                Text("Europe").tag("eu")
+                                Text("United States").tag("us")
+                                Text("Germany").tag("de")
+                                Text("France").tag("fr")
+                                Text("Japan").tag("jp")
+                                Text("Asia Pacific").tag("ap")
+                                Text("Australia").tag("au")
+                                Text("UAE").tag("ae")
+                            }
+                            .labelsHidden()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+
+                        Text("Region auto-corrects if the server redirects you.")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
                     }
 
-                    Text("Drag the HUD edges to resize it. Size is remembered.")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                }
+                    // MARK: Display
+                    SettingsSection("Display") {
+                        Toggle("Use mmol/L", isOn: $settings.useMmol)
+                            .frame(maxWidth: .infinity, alignment: .leading)
 
-                Section("Thresholds (mg/dL)") {
-                    HStack {
-                        Text("Low")
-                        Spacer()
-                        TextField("Low", value: $settings.lowThreshold, format: .number)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 80)
+                        HStack {
+                            Text("Polling Interval")
+                            Spacer()
+                            Picker("", selection: $settings.pollingInterval) {
+                                Text("1 min").tag(60.0)
+                                Text("2 min").tag(120.0)
+                                Text("3 min").tag(180.0)
+                                Text("5 min").tag(300.0)
+                            }
+                            .frame(width: 120)
+                        }
                     }
-                    HStack {
-                        Text("High")
-                        Spacer()
-                        TextField("High", value: $settings.highThreshold, format: .number)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 80)
+
+                    // MARK: HUD Appearance
+                    SettingsSection("HUD Appearance") {
+                        HStack {
+                            Text("Transparency")
+                            Slider(value: $settings.hudOpacity, in: 1...100, step: 1)
+                                .onChange(of: settings.hudOpacity) { opacity in
+                                    HUDPanelController.shared.updateOpacity(opacity)
+                                }
+                            Text("\(Int(settings.hudOpacity))%")
+                                .frame(width: 40, alignment: .trailing)
+                                .monospacedDigit()
+                        }
+
+                        Text("Drag the HUD edges to resize it. Size is remembered.")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+
+                    // MARK: Thresholds
+                    SettingsSection("Thresholds (mg/dL)") {
+                        HStack {
+                            Text("Low")
+                            Spacer()
+                            TextField("Low", value: $settings.lowThreshold, format: .number)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 80)
+                        }
+                        HStack {
+                            Text("High")
+                            Spacer()
+                            TextField("High", value: $settings.highThreshold, format: .number)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 80)
+                        }
                     }
                 }
+                .padding()
             }
-            .formStyle(.grouped)
-            .padding(.horizontal)
 
             Divider()
 
@@ -140,6 +156,45 @@ struct SettingsView: View {
         .onAppear {
             password = settings.password
         }
+    }
+}
+
+// MARK: - Helpers
+
+private struct SettingsSection<Content: View>: View {
+    let title: String
+    let content: Content
+
+    init(_ title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+                .textCase(.uppercase)
+
+            VStack(alignment: .leading, spacing: 12) {
+                content
+            }
+            .padding(12)
+            .background(Color(NSColor.controlBackgroundColor))
+            .cornerRadius(8)
+        }
+    }
+}
+
+private struct SettingsLabel: View {
+    let text: String
+    init(_ text: String) { self.text = text }
+    var body: some View {
+        Text(text)
+            .font(.subheadline)
+            .foregroundColor(.primary)
     }
 }
 
