@@ -11,6 +11,7 @@
 
 ## Features
 
+- **App Icon** — Custom icon (`icon.png`) bundled as `.icns` — visible in Finder, Spotlight, and the Dock
 - **Menu Bar Integration** — Current glucose value and trend arrow always visible in your menu bar
 - **Floating HUD** — Always-on-top transparent panel with large glucose display and trend graph (works over full-screen apps)
 - **Trend Graph** — Visual history of glucose readings with high/low threshold zones
@@ -97,8 +98,8 @@ The project includes a GitHub Action that automatically builds and creates relea
 - **Manual trigger**: Use `workflow_dispatch` to build on demand
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.1.0
+git push origin v1.1.0
 ```
 
 ## Project Structure

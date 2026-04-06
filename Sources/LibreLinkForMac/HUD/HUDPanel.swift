@@ -38,7 +38,6 @@ final class HUDPanelController: ObservableObject {
         panel.isMovableByWindowBackground = true
         panel.titlebarAppearsTransparent = true
         panel.titleVisibility = .hidden
-        panel.standardWindowButton(.closeButton)?.isHidden = true
         panel.appearance = NSAppearance(named: .darkAqua)
         panel.backgroundColor = NSColor.black.withAlphaComponent(settings.hudOpacity / 100.0)
         panel.isOpaque = false
