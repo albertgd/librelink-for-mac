@@ -121,6 +121,24 @@ Sources/LibreLinkForMac/
     └── HUDPanel.swift          # NSPanel-based floating HUD
 ```
 
+## Support
+
+LibreLink HUD for Mac is free and open source. Contributing code, reporting bugs, or sharing it with others is all I ask.
+
+If it saves you time and you'd like to support more free apps like this one, buying me a coffee helps a lot:
+
+<p align="center">
+  <a href="https://buymeacoffee.com/albertgd">
+    <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://buymeacoffee.com/albertgd">
+    <img src="bmc_qr.png" width="160" alt="Buy Me a Coffee QR code">
+  </a>
+</p>
+
 ## Author
 
 **Albert Garcia Diaz**

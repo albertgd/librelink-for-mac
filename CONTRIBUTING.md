@@ -1,6 +1,6 @@
 # Contributing to LibreLink HUD for Mac
 
-Thanks for your interest in contributing! Here's how you can help.
+Contributions are completely **free and welcome** — no CLA, no paperwork, just good code. If you find a bug, have an idea, or want to improve something, jump right in.
 
 ## Getting Started
 
@@ -50,6 +50,12 @@ Open an issue with:
 - Follow existing code style and structure
 - Password/credentials must always go through Keychain, never plain text
 - Test with your own LibreLinkUp account before submitting
+
+## Support the Project
+
+Contributing your time is already a huge help. If you'd also like to support ongoing development, you can buy me a coffee — it goes a long way towards keeping the project alive and building more free apps.
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/albertgd)
 
 ## License
 
