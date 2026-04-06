@@ -72,6 +72,11 @@ struct MenuBarView: View {
             // Actions
             Button {
                 settings.hudVisible.toggle()
+                if settings.hudVisible {
+                    HUDPanelController.shared.show()
+                } else {
+                    HUDPanelController.shared.hide()
+                }
             } label: {
                 Label(
                     settings.hudVisible ? "Hide HUD" : "Show HUD",

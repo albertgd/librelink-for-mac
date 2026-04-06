@@ -23,11 +23,13 @@ struct SettingsView: View {
                 Section("LibreLinkUp Credentials") {
                     TextField("Email", text: $settings.email)
                         .textFieldStyle(.roundedBorder)
+                        .multilineTextAlignment(.leading)
 
                     HStack {
                         if showPassword {
                             TextField("Password", text: $password)
                                 .textFieldStyle(.roundedBorder)
+                                .multilineTextAlignment(.leading)
                         } else {
                             SecureField("Password", text: $password)
                                 .textFieldStyle(.roundedBorder)

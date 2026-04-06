@@ -10,8 +10,10 @@ struct LibreLinkForMacApp: App {
         MenuBarExtra {
             MenuBarView()
         } label: {
-            HStack(spacing: 4) {
-                Image(systemName: MenuBarLabel.image(glucose: client.currentGlucose))
+            HStack(spacing: 2) {
+                if client.currentGlucose != nil {
+                    Image(systemName: MenuBarLabel.image(glucose: client.currentGlucose))
+                }
                 Text(MenuBarLabel.text(glucose: client.currentGlucose, settings: settings))
             }
         }
@@ -26,6 +28,9 @@ struct LibreLinkForMacApp: App {
     }
 
     init() {
+        // Panel always starts hidden regardless of last saved state
+        SettingsStore.shared.hudVisible = false
+
         if SettingsStore.shared.hasCredentials {
             LibreLinkClient.shared.startPolling()
         } else {
