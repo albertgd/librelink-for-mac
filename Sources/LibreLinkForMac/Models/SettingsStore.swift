@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import SwiftUI
+import ServiceManagement
 
 final class SettingsStore: ObservableObject {
     static let shared = SettingsStore()
@@ -15,6 +16,22 @@ final class SettingsStore: ObservableObject {
     @AppStorage("hud_opacity") var hudOpacity: Double = 85
     @AppStorage("hud_width") var hudWidth: Double = 280
     @AppStorage("hud_height") var hudHeight: Double = 220
+
+    var launchAtLogin: Bool {
+        get { SMAppService.mainApp.status == .enabled }
+        set {
+            objectWillChange.send()
+            do {
+                if newValue {
+                    try SMAppService.mainApp.register()
+                } else {
+                    try SMAppService.mainApp.unregister()
+                }
+            } catch {
+                print("Failed to \(newValue ? "enable" : "disable") launch at login: \(error)")
+            }
+        }
+    }
 
     // Password stored in Keychain for security
     var password: String {

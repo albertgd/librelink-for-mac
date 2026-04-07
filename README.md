@@ -17,6 +17,7 @@
 - **Trend Graph** — Visual history of glucose readings with high/low threshold zones
 - **Resizable HUD** — Drag edges to resize, size is remembered between launches
 - **Adjustable Transparency** — HUD opacity from 1% to 100%, updates in real time
+- **Launch at Login** — Optional setting to auto-start the app when you log in to macOS
 - **Configurable** — Polling interval (1-5 min), mg/dL or mmol/L, custom thresholds
 - **Secure** — Password stored in macOS Keychain, not in plain text
 - **Multi-Region** — Supports all LibreLinkUp regions (auto-detected via server redirect)
@@ -98,8 +99,8 @@ The project includes a GitHub Action that automatically builds and creates relea
 - **Manual trigger**: Use `workflow_dispatch` to build on demand
 
 ```bash
-git tag v1.1.0
-git push origin v1.1.0
+git tag v1.4.0
+git push origin v1.4.0
 ```
 
 ## Project Structure

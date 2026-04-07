@@ -71,6 +71,15 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
 
+                    // MARK: General
+                    SettingsSection("General") {
+                        Toggle("Launch at Login", isOn: Binding(
+                            get: { settings.launchAtLogin },
+                            set: { settings.launchAtLogin = $0 }
+                        ))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
                     // MARK: Display
                     SettingsSection("Display") {
                         Toggle("Use mmol/L", isOn: $settings.useMmol)
