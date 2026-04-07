@@ -133,6 +133,41 @@ struct SettingsView: View {
                                 .frame(width: 80)
                         }
                     }
+
+                    // MARK: About
+                    SettingsSection("About") {
+                        HStack {
+                            Text("Version")
+                            Spacer()
+                            Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—")
+                                .foregroundColor(.secondary)
+                        }
+
+                        HStack {
+                            Text("Author")
+                            Spacer()
+                            Text("Albert Garcia Diaz")
+                                .foregroundColor(.secondary)
+                        }
+
+                        HStack {
+                            Text("Source Code")
+                            Spacer()
+                            Link("github.com/albertgd/librelink-for-mac",
+                                 destination: URL(string: "https://github.com/albertgd/librelink-for-mac")!)
+                                .font(.caption)
+                        }
+
+                        HStack(spacing: 16) {
+                            Link("X / Twitter", destination: URL(string: "https://x.com/albertgd")!)
+                                .font(.caption)
+                            Link("LinkedIn", destination: URL(string: "https://linkedin.com/in/albertgd")!)
+                                .font(.caption)
+                            Link("Email", destination: URL(string: "mailto:albertgd@gmail.com")!)
+                                .font(.caption)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
                 }
                 .padding()
             }
@@ -161,7 +196,7 @@ struct SettingsView: View {
             }
             .padding()
         }
-        .frame(width: 420, height: 560)
+        .frame(width: 420, height: 660)
         .onAppear {
             password = settings.password
         }
@@ -228,7 +263,7 @@ final class SettingsWindowController {
         let hostingView = NSHostingView(rootView: settingsView)
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 420, height: 560),
+            contentRect: NSRect(x: 0, y: 0, width: 420, height: 660),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false

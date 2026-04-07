@@ -7,8 +7,8 @@ struct GlucoseGraphView: View {
     let useMmol: Bool
 
     private let yLabelWidth: CGFloat = 34
-    private let xLabelHeight: CGFloat = 16
-    private let yStep: Double = 50  // mg/dL step for Y-axis grid
+    private let xLabelHeight: CGFloat = 14
+    private let yStep: Double = 50  // mg/dL per grid line
 
     private var displayEntries: [GlucoseEntry] {
         entries.suffix(48)
@@ -35,69 +35,81 @@ struct GlucoseGraphView: View {
     }
 
     var body: some View {
-        GeometryReader { geo in
-            let graphWidth = geo.size.width - yLabelWidth
-            let graphHeight = geo.size.height - xLabelHeight
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                // Y-axis labels column
+                GeometryReader { yGeo in
+                    ZStack {
+                        ForEach(yLevels, id: \.self) { level in
+                            Text(formatValue(level))
+                                .font(.system(size: 8))
+                                .foregroundColor(.white.opacity(0.5))
+                                .position(
+                                    x: yGeo.size.width / 2,
+                                    y: yPos(for: level, height: yGeo.size.height)
+                                )
+                        }
+                    }
+                    .frame(width: yGeo.size.width, height: yGeo.size.height)
+                }
+                .frame(width: yLabelWidth)
 
-            ZStack(alignment: .topLeading) {
-                // Graph area (shifted right by yLabelWidth)
-                ZStack {
-                    thresholdZones(width: graphWidth, height: graphHeight)
-                    yGridLines(width: graphWidth, height: graphHeight)
-                    thresholdLines(width: graphWidth, height: graphHeight)
+                // Graph area
+                GeometryReader { graphGeo in
+                    let w = graphGeo.size.width
+                    let h = graphGeo.size.height
 
-                    if displayEntries.count > 1 {
-                        Path { path in
-                            for (index, entry) in displayEntries.enumerated() {
-                                let x = xPos(index: index, total: displayEntries.count, width: graphWidth)
-                                let y = yPos(for: entry.value, height: graphHeight)
-                                if index == 0 {
-                                    path.move(to: CGPoint(x: x, y: y))
-                                } else {
-                                    path.addLine(to: CGPoint(x: x, y: y))
+                    ZStack {
+                        thresholdZones(width: w, height: h)
+                        yGridLines(width: w, height: h)
+                        thresholdLines(width: w, height: h)
+
+                        if displayEntries.count > 1 {
+                            Path { path in
+                                for (i, entry) in displayEntries.enumerated() {
+                                    let x = xPos(index: i, total: displayEntries.count, width: w)
+                                    let y = yPos(for: entry.value, height: h)
+                                    if i == 0 { path.move(to: CGPoint(x: x, y: y)) }
+                                    else { path.addLine(to: CGPoint(x: x, y: y)) }
                                 }
                             }
-                        }
-                        .stroke(Color.white, lineWidth: 2)
+                            .stroke(Color.white, lineWidth: 2)
 
-                        ForEach(Array(displayEntries.enumerated()), id: \.element.id) { index, entry in
-                            let x = xPos(index: index, total: displayEntries.count, width: graphWidth)
-                            let y = yPos(for: entry.value, height: graphHeight)
-                            Circle()
-                                .fill(dotColor(for: entry.value))
-                                .frame(width: 5, height: 5)
-                                .position(x: x, y: y)
+                            ForEach(Array(displayEntries.enumerated()), id: \.element.id) { i, entry in
+                                let x = xPos(index: i, total: displayEntries.count, width: w)
+                                let y = yPos(for: entry.value, height: h)
+                                Circle()
+                                    .fill(dotColor(for: entry.value))
+                                    .frame(width: 5, height: 5)
+                                    .position(x: x, y: y)
+                            }
                         }
                     }
+                    .frame(width: w, height: h)
                 }
-                .frame(width: graphWidth, height: graphHeight)
-                .offset(x: yLabelWidth, y: 0)
+            }
 
-                // Y-axis labels
-                ForEach(yLevels, id: \.self) { level in
-                    let y = yPos(for: level, height: graphHeight)
-                    Text(formatValue(level))
-                        .font(.system(size: 8))
-                        .foregroundColor(.white.opacity(0.45))
-                        .frame(width: yLabelWidth - 4, alignment: .trailing)
-                        .position(x: (yLabelWidth - 4) / 2, y: y)
-                }
+            // X-axis time labels row
+            HStack(spacing: 0) {
+                Color.clear.frame(width: yLabelWidth, height: xLabelHeight)
 
-                // X-axis time labels
-                if displayEntries.count > 1 {
-                    ForEach(xTimeTicks(), id: \.index) { tick in
-                        let x = xPos(index: tick.index, total: displayEntries.count, width: graphWidth) + yLabelWidth
-                        Text(tick.label)
-                            .font(.system(size: 8))
-                            .foregroundColor(.white.opacity(0.45))
-                            .position(x: x, y: graphHeight + xLabelHeight / 2)
+                GeometryReader { xGeo in
+                    ZStack {
+                        ForEach(xTimeTicks(width: xGeo.size.width), id: \.index) { tick in
+                            Text(tick.label)
+                                .font(.system(size: 8))
+                                .foregroundColor(.white.opacity(0.5))
+                                .position(x: tick.x, y: xLabelHeight / 2)
+                        }
                     }
+                    .frame(width: xGeo.size.width, height: xLabelHeight)
                 }
+                .frame(height: xLabelHeight)
             }
         }
     }
 
-    // MARK: - Helpers
+    // MARK: - Positioning helpers
 
     private func xPos(index: Int, total: Int, width: CGFloat) -> CGFloat {
         guard total > 1 else { return 0 }
@@ -109,6 +121,8 @@ struct GlucoseGraphView: View {
         guard range > 0 else { return height / 2 }
         return height - CGFloat((value - minValue) / range) * height
     }
+
+    // MARK: - Graph layers
 
     private func thresholdZones(width: CGFloat, height: CGFloat) -> some View {
         ZStack {
@@ -157,6 +171,8 @@ struct GlucoseGraphView: View {
         }
     }
 
+    // MARK: - Helpers
+
     private func dotColor(for value: Double) -> Color {
         switch GlucoseRange.from(value: value) {
         case .low: return .red
@@ -176,10 +192,11 @@ struct GlucoseGraphView: View {
 
     private struct XTick {
         let index: Int
+        let x: CGFloat
         let label: String
     }
 
-    private func xTimeTicks() -> [XTick] {
+    private func xTimeTicks(width: CGFloat) -> [XTick] {
         let indexed = displayEntries.enumerated().compactMap { (i, e) -> (Int, Date)? in
             guard let d = e.timestamp else { return nil }
             return (i, d)
@@ -190,25 +207,22 @@ struct GlucoseGraphView: View {
         formatter.dateFormat = "HH:mm"
         let cal = Calendar.current
 
-        // Snap to first 30-min boundary after firstDate
         var comps = cal.dateComponents([.year, .month, .day, .hour, .minute], from: firstDate)
         let minute = comps.minute ?? 0
         comps.minute = minute < 30 ? 30 : 0
         comps.second = 0
-        if minute >= 30 {
-            comps.hour = (comps.hour ?? 0) + 1
-        }
+        if minute >= 30 { comps.hour = (comps.hour ?? 0) + 1 }
         guard var boundary = cal.date(from: comps) else { return [] }
 
         var ticks: [XTick] = []
-        var seen = Set<Int>()  // avoid duplicate entries
+        var seen = Set<Int>()
 
         while boundary <= lastDate {
-            // Find the entry closest to this boundary
             if let closest = indexed.min(by: { abs($0.1.timeIntervalSince(boundary)) < abs($1.1.timeIntervalSince(boundary)) }),
-               abs(closest.1.timeIntervalSince(boundary)) < 10 * 60,  // within 10 min
+               abs(closest.1.timeIntervalSince(boundary)) < 15 * 60,
                !seen.contains(closest.0) {
-                ticks.append(XTick(index: closest.0, label: formatter.string(from: boundary)))
+                let x = xPos(index: closest.0, total: displayEntries.count, width: width)
+                ticks.append(XTick(index: closest.0, x: x, label: formatter.string(from: boundary)))
                 seen.insert(closest.0)
             }
             boundary = cal.date(byAdding: .minute, value: 30, to: boundary) ?? boundary.addingTimeInterval(1800)
