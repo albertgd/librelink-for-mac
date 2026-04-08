@@ -6,8 +6,8 @@ struct GlucoseGraphView: View {
     let highThreshold: Double
     let useMmol: Bool
 
-    private let yLabelWidth: CGFloat = 34
-    private let xLabelHeight: CGFloat = 14
+    private let yLabelWidth: CGFloat = 40
+    private let xLabelHeight: CGFloat = 18
     private let yStep: Double = 50  // mg/dL per grid line
 
     private var displayEntries: [GlucoseEntry] {
@@ -42,7 +42,7 @@ struct GlucoseGraphView: View {
                     ZStack {
                         ForEach(yLevels, id: \.self) { level in
                             Text(formatValue(level))
-                                .font(.system(size: 8))
+                                .font(.system(size: 11))
                                 .foregroundColor(.white.opacity(0.5))
                                 .position(
                                     x: yGeo.size.width / 2,
@@ -97,7 +97,7 @@ struct GlucoseGraphView: View {
                     ZStack {
                         ForEach(xTimeTicks(width: xGeo.size.width), id: \.index) { tick in
                             Text(tick.label)
-                                .font(.system(size: 8))
+                                .font(.system(size: 11))
                                 .foregroundColor(.white.opacity(0.5))
                                 .position(x: tick.x, y: xLabelHeight / 2)
                         }
@@ -230,7 +230,7 @@ struct GlucoseGraphView: View {
 
         // Thin out ticks dynamically to prevent label overlap.
         // Each "HH:mm" label is ~32 px wide at size 8; require 40 px minimum between centers.
-        let minSpacing: CGFloat = 40
+        let minSpacing: CGFloat = 50
         var step = 1
         while step <= allTicks.count {
             let thinned = stride(from: 0, to: allTicks.count, by: step).map { allTicks[$0] }
