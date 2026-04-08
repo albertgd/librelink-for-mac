@@ -1,8 +1,16 @@
 import SwiftUI
 import Combine
 
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        guard SettingsStore.shared.hasCredentials, SettingsStore.shared.hudVisible else { return }
+        HUDPanelController.shared.show()
+    }
+}
+
 @main
 struct LibreLinkForMacApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var client = LibreLinkClient.shared
     @StateObject private var settings = SettingsStore.shared
 
@@ -31,9 +39,6 @@ struct LibreLinkForMacApp: App {
         if SettingsStore.shared.hasCredentials {
             SettingsStore.shared.hudVisible = true
             LibreLinkClient.shared.startPolling()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                HUDPanelController.shared.show()
-            }
         } else {
             SettingsStore.shared.hudVisible = false
             // First launch — open Settings so the user can enter credentials

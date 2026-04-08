@@ -214,7 +214,7 @@ struct GlucoseGraphView: View {
         if minute >= 30 { comps.hour = (comps.hour ?? 0) + 1 }
         guard var boundary = cal.date(from: comps) else { return [] }
 
-        var ticks: [XTick] = []
+        var allTicks: [XTick] = []
         var seen = Set<Int>()
 
         while boundary <= lastDate {
@@ -222,12 +222,23 @@ struct GlucoseGraphView: View {
                abs(closest.1.timeIntervalSince(boundary)) < 15 * 60,
                !seen.contains(closest.0) {
                 let x = xPos(index: closest.0, total: displayEntries.count, width: width)
-                ticks.append(XTick(index: closest.0, x: x, label: formatter.string(from: boundary)))
+                allTicks.append(XTick(index: closest.0, x: x, label: formatter.string(from: boundary)))
                 seen.insert(closest.0)
             }
             boundary = cal.date(byAdding: .minute, value: 30, to: boundary) ?? boundary.addingTimeInterval(1800)
         }
 
-        return ticks
+        // Thin out ticks dynamically to prevent label overlap.
+        // Each "HH:mm" label is ~32 px wide at size 8; require 40 px minimum between centers.
+        let minSpacing: CGFloat = 40
+        var step = 1
+        while step <= allTicks.count {
+            let thinned = stride(from: 0, to: allTicks.count, by: step).map { allTicks[$0] }
+            let fits = thinned.count <= 1 ||
+                zip(thinned, thinned.dropFirst()).allSatisfy { $1.x - $0.x >= minSpacing }
+            if fits { return thinned }
+            step *= 2
+        }
+        return []
     }
 }
